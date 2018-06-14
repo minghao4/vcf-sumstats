@@ -23,13 +23,21 @@ public class Main {
 
     // }
 
+    // public static void main(String[] args) {
+    //     String folderPath = args[0];
+    //     String regionsFilePath = args[1];
+    //     Histograms hist = new Histograms();
+
+    //     hist.setRegions(regionsFilePath);
+    //     hist.readWriteVariantFiles(folderPath);
+
+    // }
+
     public static void main(String[] args) {
         String folderPath = args[0];
-        String regionsFilePath = args[1];
-        Histograms hist = new Histograms();
+        Linkage link = new Linkage();
 
-        hist.setRegions(regionsFilePath);
-        hist.readWriteVariantFiles(folderPath);
+        link.calcLinkage(folderPath);
 
     }
 
