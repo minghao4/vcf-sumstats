@@ -14,7 +14,7 @@
             "stopOnEntry": false,
             "mainClass": "com.longlab.sumstats.Main",
             "projectName": "vcf-sumstats",
-            "args": "${workspaceFolder}/testing/histograms_test/variants ${workspaceFolder}/testing/histograms_test/annotated_regions.tsv"
+            "args": "${workspaceFolder}/testing/ld_test"
         },
         {
             "type": "java",

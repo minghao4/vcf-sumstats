@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -53,8 +54,9 @@ public class Linkage {
     }
 
     private void setScaffolds() {
+        String prevScaffold = "";
+
         for (String[] row : this.input) {
-            String prevScaffold = "";
             String currScaffold = row[0].split("_")[0];
 
             if (currScaffold.equals(prevScaffold)) {
@@ -76,13 +78,25 @@ public class Linkage {
     }
 
     private void filterScaffolds() {
-        for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
+        Iterator<Map.Entry<String, List<String[]>>> iter = this.scaffolds.entrySet().iterator();
+
+        while (iter.hasNext()) {
+            Map.Entry<String, List<String[]>> entry = iter.next();
+
             if (entry.getValue().size() < 2) {
-                this.scaffolds.remove(entry.getKey());
+                iter.remove();
 
             }
 
         }
+
+        // for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
+        //     if (entry.getValue().size() < 2) {
+        //         this.scaffolds.remove(entry.getKey());
+
+        //     }
+
+        // }
 
     }
 
@@ -102,7 +116,7 @@ public class Linkage {
     private double rSquared(String[] varA, String[] varB) {
         double pA = Double.parseDouble(varA[25]);
         double pB = Double.parseDouble(varB[25]);
-        int countAB = 0;
+        double countAB = 0;
 
         for (int i = 1; i < 24; i++) {
             if (!varA[i].equals("0") && !varB[i].equals("0")) {
@@ -121,9 +135,10 @@ public class Linkage {
 
     private void setOutput() {
         getOutputDim();
+        int row = 0;
 
         for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
-            int row = 0;
+
             List<String[]> vars = entry.getValue();
             int varsLen = vars.size();
 
@@ -161,7 +176,16 @@ public class Linkage {
 
         writer.writeHeaders("#Distance", "rSquared");
         for (double[] row : this.output) {
-            writer.writeRow(row);
+            if (row[0] == 0 && row[1] == 0) {
+                break;
+
+            }
+
+            String[] writeable = new String[2];
+            writeable[0] = Double.toString(row[0]);
+            writeable[1] = Double.toString(row[1]);
+
+            writer.writeRow(writeable);
 
         }
 
@@ -187,7 +211,7 @@ public class Linkage {
 
             String fileName = file.getName().substring(0, file.getName().length() - 4);
             String outputFileName = fileName + "_output.tsv";
-            String outputFilePath = folderPath + "/" + outputFileName;
+            String outputFilePath = folderPath + "/output/" + outputFileName;
             writeOutput(outputFilePath);
 
         }
