@@ -104,7 +104,32 @@ public class Linkage {
 
         }
 
+        System.out.println("Max rows: " + dimRow);
         this.outputHom = new double[dimRow][dimCol];
+
+    }
+
+    private int hetStatus(String[] varA, String[] varB) {
+        // 0 = hom
+        // 1 = varA het
+        // 2 = varB het
+
+        int status = 0;
+
+        for (int i = 1; i < 23; i += 2) {
+            if (!varA[i].equals(varA[i + 1])) {
+                this.outputHet.add(varA);
+                status = 1;
+
+            } else if (!varB[i].equals(varB[i + 1])) {
+                this.outputHet.add(varB);
+                status = 2;
+
+            }
+
+        }
+
+        return status;
 
     }
 
@@ -114,23 +139,6 @@ public class Linkage {
         double countAB = 0;
 
         for (int i = 1; i < 23; i += 2) {
-            boolean aHet = false;
-            boolean bHet = false;
-            if (!varA[i].equals(varA[i + 1])) {
-                this.outputHet.add(varA);
-                aHet = true;
-
-            } else if (!varB[i].equals(varB[i + 1])) {
-                this.outputHet.add(varB);
-                bHet = true;
-
-            }
-
-            if (aHet || bHet) {
-                continue;
-
-            }
-
             if (!varA[i].equals("0") && !varB[i].equals("0")) {
                 countAB++;
 
@@ -150,15 +158,28 @@ public class Linkage {
         int row = 0;
 
         for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
-
             List<String[]> vars = entry.getValue();
             int varsLen = vars.size();
 
             for (int i = 0; i < varsLen; i++) {
                 String[] varA = vars.get(i);
 
+                innerLoop:
                 for (int j = i + 1; j < varsLen; j++) {
                     String[] varB = vars.get(j);
+                    int status = hetStatus(varA, varB);
+
+                    if (status == 1) {
+                        System.out.println("Break innerLoop, continue outerLoop.");
+                        System.out.println("Current row: " + row);
+                        break innerLoop;
+
+                    } else if (status == 2) {
+                        System.out.println("Continuing innerLoop.");
+                        System.out.println("Current row: " + row);
+                        continue innerLoop;
+
+                    }
 
                     double[] newOutputEntry = new double[2];
                     int distance = Math.abs(Integer.parseInt(varA[0].split("_")[1]) -
@@ -167,6 +188,7 @@ public class Linkage {
                     newOutputEntry[0] = (double)distance;
                     newOutputEntry[1] = rSquared(varA, varB);
 
+                    System.out.println("Adding to row " + row);
                     this.outputHom[row] = newOutputEntry;
                     row++;
 
