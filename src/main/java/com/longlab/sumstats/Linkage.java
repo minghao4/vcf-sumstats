@@ -206,7 +206,21 @@ public class Linkage {
 
         }
 
-        writerHet.writeHeaders("#Distance", "rSquared");
+        writerHet.writeHeaders("Scaffold_Position",
+        "Canda_A1",   "Canda_A2",
+        "CFX1_A1",    "CFX1_A2",
+        "CFX2_A1",    "CFX2_A2",
+        "CRS1_A1",    "CRS1_A2",
+        "Delores_A1", "Delores_A2",
+        "Finola_A1",  "Finola_A2",
+        "Grandi_A1",  "Grandi_A2",
+        "Joey_A1",    "Joey_A2",
+        "Katani_A1",  "Katani_A2",
+        "Picolo_A1",  "Picolo_A2",
+        "Silesia_A1", "Silesia_A2",
+        "X59_A1",     "X59_A2",
+        "Allele_Frequency");
+
         for (String[] row : this.outputHet) {
             writerHet.writeRow(row);
 
@@ -230,6 +244,8 @@ public class Linkage {
                     outputFolder = true;
 
                 }
+
+                continue;
 
             }
 

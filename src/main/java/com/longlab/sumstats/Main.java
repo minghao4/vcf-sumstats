@@ -33,18 +33,18 @@ public class Main {
 
     // }
 
-    // public static void main(String[] args) {
-    //     String folderPath = args[0];
-    //     Linkage link = new Linkage();
-
-    //     link.calcLinkage(folderPath);
-
-    // }
-
     public static void main(String[] args) {
         String folderPath = args[0];
-        SeqDivergence div = new SeqDivergence();
+        Linkage link = new Linkage();
+
+        link.calcLinkage(folderPath);
 
     }
+
+    // public static void main(String[] args) {
+    //     String folderPath = args[0];
+    //     SeqDivergence div = new SeqDivergence();
+
+    // }
 
 }
