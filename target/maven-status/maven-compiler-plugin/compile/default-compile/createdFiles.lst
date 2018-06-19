@@ -3,3 +3,4 @@ com/longlab/sumstats/Main.class
 com/longlab/sumstats/VcfParser.class
 com/longlab/sumstats/Histograms.class
 com/longlab/sumstats/RegionAnnotater.class
+com/longlab/sumstats/Linkage.class
