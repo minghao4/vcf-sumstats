@@ -14,20 +14,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.commons.math3.util.CombinatoricsUtils;
 
 public class Linkage {
     private Map<String, List<String[]>> scaffolds;
     private List<String[]> input;
-    private double[][] output;
+    private double[][] outputHom;
+    private Set<String[]> outputHet;
     private TsvParser parser;
 
     public Linkage() {
         this.scaffolds = new HashMap<String,List<String[]>>();
         this.input = new ArrayList<String[]>();
-        this.output = new double[1][1];
-
+        this.outputHom = new double[1][1];
+        this.outputHet = new HashSet<String[]>();
         initParser();
 
     }
@@ -90,14 +93,6 @@ public class Linkage {
 
         }
 
-        // for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
-        //     if (entry.getValue().size() < 2) {
-        //         this.scaffolds.remove(entry.getKey());
-
-        //     }
-
-        // }
-
     }
 
     private void getOutputDim() {
@@ -109,7 +104,7 @@ public class Linkage {
 
         }
 
-        this.output = new double[dimRow][dimCol];
+        this.outputHom = new double[dimRow][dimCol];
 
     }
 
@@ -118,7 +113,24 @@ public class Linkage {
         double pB = Double.parseDouble(varB[25]);
         double countAB = 0;
 
-        for (int i = 1; i < 24; i++) {
+        for (int i = 1; i < 23; i += 2) {
+            boolean aHet = false;
+            boolean bHet = false;
+            if (!varA[i].equals(varA[i + 1])) {
+                this.outputHet.add(varA);
+                aHet = true;
+
+            } else if (!varB[i].equals(varB[i + 1])) {
+                this.outputHet.add(varB);
+                bHet = true;
+
+            }
+
+            if (aHet || bHet) {
+                continue;
+
+            }
+
             if (!varA[i].equals("0") && !varB[i].equals("0")) {
                 countAB++;
 
@@ -142,19 +154,23 @@ public class Linkage {
             List<String[]> vars = entry.getValue();
             int varsLen = vars.size();
 
-            for (int i = 0; i < varsLen - 1; i++) {
+            for (int i = 0; i < varsLen; i++) {
                 String[] varA = vars.get(i);
-                String[] varB = vars.get(i + 1);
 
-                double[] newOutputEntry = new double[2];
-                int distance = Math.abs(Integer.parseInt(varA[0].split("_")[1]) -
-                    Integer.parseInt(varB[0].split("_")[1]));
+                for (int j = i + 1; j < varsLen; j++) {
+                    String[] varB = vars.get(j);
 
-                newOutputEntry[0] = (double)distance;
-                newOutputEntry[1] = rSquared(varA, varB);
+                    double[] newOutputEntry = new double[2];
+                    int distance = Math.abs(Integer.parseInt(varA[0].split("_")[1]) -
+                        Integer.parseInt(varB[0].split("_")[1]));
 
-                this.output[row] = newOutputEntry;
-                row++;
+                    newOutputEntry[0] = (double)distance;
+                    newOutputEntry[1] = rSquared(varA, varB);
+
+                    this.outputHom[row] = newOutputEntry;
+                    row++;
+
+                }
 
             }
 
@@ -162,20 +178,21 @@ public class Linkage {
 
     }
 
-    private void writeOutput(String outputFilePath) {
-        TsvWriter writer = null;
+    private void writeOutput(String outputHomFilePath, String outputHetFilePath) {
+        TsvWriter writerHom = null;
+        TsvWriter writerHet = null;
 
         try {
-            writer = new TsvWriter(new FileWriter(outputFilePath),
-                new TsvWriterSettings());
+            writerHom = new TsvWriter(new FileWriter(outputHomFilePath), new TsvWriterSettings());
+            writerHet = new TsvWriter(new FileWriter(outputHetFilePath), new TsvWriterSettings());
 
         } catch (IOException e) {
             e.printStackTrace();
 
         }
 
-        writer.writeHeaders("#Distance", "rSquared");
-        for (double[] row : this.output) {
+        writerHom.writeHeaders("#Distance", "rSquared");
+        for (double[] row : this.outputHom) {
             if (row[0] == 0 && row[1] == 0) {
                 break;
 
@@ -185,22 +202,34 @@ public class Linkage {
             writeable[0] = Double.toString(row[0]);
             writeable[1] = Double.toString(row[1]);
 
-            writer.writeRow(writeable);
+            writerHom.writeRow(writeable);
 
         }
 
-        writer.flush();
-        writer.close();
+        writerHet.writeHeaders("#Distance", "rSquared");
+        for (String[] row : this.outputHet) {
+            writerHet.writeRow(row);
+
+        }
+
+        writerHom.flush();
+        writerHet.flush();
+        writerHom.close();
+        writerHet.close();
 
     }
 
     public void calcLinkage(String folderPath) {
         File folder = new File(folderPath);
         File[] files = folder.listFiles();
+        boolean outputFolder = false;
 
         for (File file : files) {
             if (file.isDirectory()) {
-                continue;
+                if (file.getName().equals("output")) {
+                    outputFolder = true;
+
+                }
 
             }
 
@@ -209,10 +238,18 @@ public class Linkage {
             filterScaffolds();
             setOutput();
 
+            if (!outputFolder) {
+                new File(folderPath + "/output").mkdirs();
+                outputFolder = true;
+
+            }
+
             String fileName = file.getName().substring(0, file.getName().length() - 4);
-            String outputFileName = fileName + "_output.tsv";
-            String outputFilePath = folderPath + "/output/" + outputFileName;
-            writeOutput(outputFilePath);
+            String outputHomFileName = fileName + "_outputHom.tsv";
+            String outputHetFileName = fileName + "_outputHet.tsv";
+            String outputHomFilePath = folderPath + "/output/" + outputHomFileName;
+            String outputHetFilePath = folderPath + "/output/" + outputHetFileName;
+            writeOutput(outputHomFilePath, outputHetFilePath);
 
         }
 
