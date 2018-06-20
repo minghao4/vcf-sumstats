@@ -33,18 +33,26 @@ public class Main {
 
     // }
 
-    public static void main(String[] args) {
-        String folderPath = args[0];
-        Linkage link = new Linkage();
+    // public static void main(String[] args) {
+    //     String folderPath = args[0];
+    //     Linkage link = new Linkage();
 
-        link.calcLinkage(folderPath);
+    //     link.calcLinkage(folderPath);
 
-    }
+    // }
 
     // public static void main(String[] args) {
     //     String folderPath = args[0];
     //     SeqDivergence div = new SeqDivergence();
 
     // }
+
+    public static void main(String[] args) {
+        String folderPath = args[0];
+        PhaseInputFormatter pif = new PhaseInputFormatter();
+
+        pif.formatPhaseInputs(folderPath);
+
+    }
 
 }

@@ -14,7 +14,7 @@
             "stopOnEntry": false,
             "mainClass": "com.longlab.sumstats.Main",
             "projectName": "vcf-sumstats",
-            "args": "${workspaceFolder}/testing/ld_test"
+            "args": "${workspaceFolder}/testing/phase_inputs"
         },
         {
             "type": "java",

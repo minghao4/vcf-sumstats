@@ -8,7 +8,7 @@
     <groupId>com.longlab.sumstats</groupId>
     <artifactId>vcf-sumstats</artifactId>
     <packaging>jar</packaging>
-    <version>debug-LINKAGE</version>
+    <version>1.0-PHASEINPUTFORMATTER</version>
     <name>vcf-sumstats</name>
 
     <url>http://maven.apache.org</url>

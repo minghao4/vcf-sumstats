@@ -22,14 +22,14 @@ import org.apache.commons.math3.util.CombinatoricsUtils;
 public class Linkage {
     private Map<String, List<String[]>> scaffolds;
     private List<String[]> input;
-    private double[][] outputHom;
+    private List<double[]> outputHom;
     private Set<String[]> outputHet;
     private TsvParser parser;
 
     public Linkage() {
         this.scaffolds = new HashMap<String,List<String[]>>();
         this.input = new ArrayList<String[]>();
-        this.outputHom = new double[1][1];
+        this.outputHom = new ArrayList<double[]>();
         this.outputHet = new HashSet<String[]>();
         initParser();
 
@@ -95,19 +95,19 @@ public class Linkage {
 
     }
 
-    private void getOutputDim() {
-        int dimCol = 2;
-        int dimRow = 0;
+    // private void getOutputDim() {
+    //     int dimCol = 2;
+    //     int dimRow = 0;
 
-        for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
-            dimRow += CombinatoricsUtils.binomialCoefficient(entry.getValue().size(), 2);
+    //     for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
+    //         dimRow += CombinatoricsUtils.binomialCoefficient(entry.getValue().size(), 2);
 
-        }
+    //     }
 
-        System.out.println("Max rows: " + dimRow);
-        this.outputHom = new double[dimRow][dimCol];
+    //     System.out.println("Max rows: " + dimRow);
+    //     this.outputHom = new double[dimRow][dimCol];
 
-    }
+    // }
 
     private int hetStatus(String[] varA, String[] varB) {
         // 0 = hom
@@ -154,7 +154,7 @@ public class Linkage {
     }
 
     private void setOutput() {
-        getOutputDim();
+        // getOutputDim();
         int row = 0;
 
         for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
@@ -189,7 +189,7 @@ public class Linkage {
                     newOutputEntry[1] = rSquared(varA, varB);
 
                     System.out.println("Adding to row " + row);
-                    this.outputHom[row] = newOutputEntry;
+                    this.outputHom.add(newOutputEntry);
                     row++;
 
                 }
