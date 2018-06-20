@@ -47,11 +47,20 @@ public class Main {
 
     // }
 
-    public static void main(String[] args) {
-        String folderPath = args[0];
-        PhaseInputFormatter pif = new PhaseInputFormatter();
+    // public static void main(String[] args) {
+    //     String folderPath = args[0];
+    //     PhaseInputFormatter pif = new PhaseInputFormatter();
 
-        pif.formatPhaseInputs(folderPath);
+    //     pif.formatPhaseInputs(folderPath);
+
+    // }
+
+    public static void main(String[] args) {
+        String sizesFile = args[0];
+        String dataFile = args[1];
+        SeqDivergence sd = new SeqDivergence();
+
+        sd.calcSeqDivergence(sizesFile, dataFile);
 
     }
 

@@ -17,7 +17,6 @@ import java.util.HashMap;
 public class RegionAnnotater {
     private Map<String, Integer> scaffolds;
     private List<String[]> exons;
-
     private List<String[]> output;
     private TsvParser parser;
 

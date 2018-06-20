@@ -17,8 +17,6 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
-import org.apache.commons.math3.util.CombinatoricsUtils;
-
 public class Linkage {
     private Map<String, List<String[]>> scaffolds;
     private List<String[]> input;

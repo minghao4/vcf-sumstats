@@ -14,7 +14,7 @@
             "stopOnEntry": false,
             "mainClass": "com.longlab.sumstats.Main",
             "projectName": "vcf-sumstats",
-            "args": "${workspaceFolder}/testing/phase_inputs"
+            "args": "${workspaceFolder}/testing/seq_divergence/canSat3_100kb_scaffolds.tsv ${workspaceFolder}/testing/seq_divergence/seq_div_test.tsv"
         },
         {
             "type": "java",
