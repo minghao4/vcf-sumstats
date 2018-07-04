@@ -14,21 +14,21 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
+// import java.util.Set;
+// import java.util.HashSet;
 
 public class Linkage {
     private Map<String, List<String[]>> scaffolds;
     private List<String[]> input;
     private List<double[]> outputHom;
-    private Set<String[]> outputHet;
+    // private Set<String[]> outputHet;
     private TsvParser parser;
 
     public Linkage() {
         this.scaffolds = new HashMap<String,List<String[]>>();
         this.input = new ArrayList<String[]>();
         this.outputHom = new ArrayList<double[]>();
-        this.outputHet = new HashSet<String[]>();
+        // this.outputHet = new HashSet<String[]>();
         initParser();
 
     }
@@ -107,21 +107,30 @@ public class Linkage {
 
     // }
 
-    private int hetStatus(String[] varA, String[] varB) {
+    private int status(String[] varA, String[] varB) {
         // 0 = hom
-        // 1 = varA het
-        // 2 = varB het
+        // 1 = varA anom
+        // 2 = varB anom
 
         int status = 0;
 
-        for (int i = 1; i < 23; i += 2) {
-            if (!varA[i].equals(varA[i + 1])) {
-                this.outputHet.add(varA);
-                status = 1;
+        if (Double.parseDouble(varA[25]) == 1) {
+            status = 1;
 
-            } else if (!varB[i].equals(varB[i + 1])) {
-                this.outputHet.add(varB);
-                status = 2;
+        } else if (Double.parseDouble(varB[25]) == 1) {
+            status = 2;
+
+        } else {
+            for (int i = 1; i <= 23; i += 2) {
+                if (!varA[i].equals(varA[i + 1])) {
+                    // this.outputHet.add(varA);
+                    status = 1;
+
+                } else if (!varB[i].equals(varB[i + 1])) {
+                    // this.outputHet.add(varB);
+                    status = 2;
+
+                }
 
             }
 
@@ -136,9 +145,9 @@ public class Linkage {
         double pB = Double.parseDouble(varB[25]);
         double countAB = 0;
 
-        for (int i = 1; i < 23; i += 2) {
+        for (int i = 1; i <= 23; i += 2) {
             if (!varA[i].equals("0") && !varB[i].equals("0")) {
-                countAB++;
+                countAB += 2;
 
             }
 
@@ -147,13 +156,29 @@ public class Linkage {
         double d = (countAB / 24) - (pA * pB);
         double r = d / Math.sqrt(pA * pB * (1 - pA) * (1 - pB));
 
+        // debugging
+        if (Double.isNaN(Math.pow(r, 2))) {
+            System.out.println("Anomaly");
+            System.out.println(varA[0]);
+            System.out.println(pA);
+            System.out.println(varB[0]);
+            System.out.println(pB);
+            System.out.println(countAB);
+            System.out.println(d);
+            System.out.println(r);
+            System.out.println(Math.pow(r, 2));
+            System.out.println();
+            System.exit(0);
+
+        }
+
         return Math.pow(r, 2);
 
     }
 
     private void setOutput() {
         // getOutputDim();
-        int row = 0;
+        // int row = 0;
 
         for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
             List<String[]> vars = entry.getValue();
@@ -165,16 +190,12 @@ public class Linkage {
                 innerLoop:
                 for (int j = i + 1; j < varsLen; j++) {
                     String[] varB = vars.get(j);
-                    int status = hetStatus(varA, varB);
+                    int status = status(varA, varB);
 
                     if (status == 1) {
-                        System.out.println("Break innerLoop, continue outerLoop.");
-                        System.out.println("Current row: " + row);
                         break innerLoop;
 
                     } else if (status == 2) {
-                        System.out.println("Continuing innerLoop.");
-                        System.out.println("Current row: " + row);
                         continue innerLoop;
 
                     }
@@ -185,10 +206,8 @@ public class Linkage {
 
                     newOutputEntry[0] = (double)distance;
                     newOutputEntry[1] = rSquared(varA, varB);
-
-                    System.out.println("Adding to row " + row);
                     this.outputHom.add(newOutputEntry);
-                    row++;
+                    // row++;
 
                 }
 
@@ -198,13 +217,13 @@ public class Linkage {
 
     }
 
-    private void writeOutput(String outputHomFilePath, String outputHetFilePath) {
+    private void writeOutput(String outputHomFilePath) {
         TsvWriter writerHom = null;
-        TsvWriter writerHet = null;
+        // TsvWriter writerHet = null;
 
         try {
             writerHom = new TsvWriter(new FileWriter(outputHomFilePath), new TsvWriterSettings());
-            writerHet = new TsvWriter(new FileWriter(outputHetFilePath), new TsvWriterSettings());
+            // writerHet = new TsvWriter(new FileWriter(outputHetFilePath), new TsvWriterSettings());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -226,30 +245,30 @@ public class Linkage {
 
         }
 
-        writerHet.writeHeaders("Scaffold_Position",
-        "Canda_A1",   "Canda_A2",
-        "CFX1_A1",    "CFX1_A2",
-        "CFX2_A1",    "CFX2_A2",
-        "CRS1_A1",    "CRS1_A2",
-        "Delores_A1", "Delores_A2",
-        "Finola_A1",  "Finola_A2",
-        "Grandi_A1",  "Grandi_A2",
-        "Joey_A1",    "Joey_A2",
-        "Katani_A1",  "Katani_A2",
-        "Picolo_A1",  "Picolo_A2",
-        "Silesia_A1", "Silesia_A2",
-        "X59_A1",     "X59_A2",
-        "Allele_Frequency");
+        // writerHet.writeHeaders("Scaffold_Position",
+        // "Canda_A1",   "Canda_A2",
+        // "CFX1_A1",    "CFX1_A2",
+        // "CFX2_A1",    "CFX2_A2",
+        // "CRS1_A1",    "CRS1_A2",
+        // "Delores_A1", "Delores_A2",
+        // "Finola_A1",  "Finola_A2",
+        // "Grandi_A1",  "Grandi_A2",
+        // "Joey_A1",    "Joey_A2",
+        // "Katani_A1",  "Katani_A2",
+        // "Picolo_A1",  "Picolo_A2",
+        // "Silesia_A1", "Silesia_A2",
+        // "X59_A1",     "X59_A2",
+        // "Allele_Frequency");
 
-        for (String[] row : this.outputHet) {
-            writerHet.writeRow(row);
+        // for (String[] row : this.outputHet) {
+        //     writerHet.writeRow(row);
 
-        }
+        // }
 
         writerHom.flush();
-        writerHet.flush();
+        // writerHet.flush();
         writerHom.close();
-        writerHet.close();
+        // writerHet.close();
 
     }
 
@@ -282,10 +301,10 @@ public class Linkage {
 
             String fileName = file.getName().substring(0, file.getName().length() - 4);
             String outputHomFileName = fileName + "_outputHom.tsv";
-            String outputHetFileName = fileName + "_outputHet.tsv";
+            // String outputHetFileName = fileName + "_outputHet.tsv";
             String outputHomFilePath = folderPath + "/output/" + outputHomFileName;
-            String outputHetFilePath = folderPath + "/output/" + outputHetFileName;
-            writeOutput(outputHomFilePath, outputHetFilePath);
+            // String outputHetFilePath = folderPath + "/output/" + outputHetFileName;
+            writeOutput(outputHomFilePath);
 
         }
 

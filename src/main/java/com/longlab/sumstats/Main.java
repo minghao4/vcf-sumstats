@@ -33,13 +33,13 @@ public class Main {
 
     // }
 
-    // public static void main(String[] args) {
-    //     String folderPath = args[0];
-    //     Linkage link = new Linkage();
+    public static void main(String[] args) {
+        String folderPath = args[0];
+        Linkage link = new Linkage();
 
-    //     link.calcLinkage(folderPath);
+        link.calcLinkage(folderPath);
 
-    // }
+    }
 
     // public static void main(String[] args) {
     //     String folderPath = args[0];
@@ -55,13 +55,13 @@ public class Main {
 
     // }
 
-    public static void main(String[] args) {
-        String sizesFile = args[0];
-        String dataFile = args[1];
-        SeqDivergence sd = new SeqDivergence();
+    // public static void main(String[] args) {
+    //     String sizesFile = args[0];
+    //     String dataFile = args[1];
+    //     SeqDivergence sd = new SeqDivergence();
 
-        sd.calcSeqDivergence(sizesFile, dataFile);
+    //     sd.calcSeqDivergence(sizesFile, dataFile);
 
-    }
+    // }
 
 }

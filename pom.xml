@@ -8,7 +8,7 @@
     <groupId>com.longlab.sumstats</groupId>
     <artifactId>vcf-sumstats</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SEQDIVERGENCE</version>
+    <version>1.13-with-debug-LINKAGE-NOHET</version>
     <name>vcf-sumstats</name>
 
     <url>http://maven.apache.org</url>
