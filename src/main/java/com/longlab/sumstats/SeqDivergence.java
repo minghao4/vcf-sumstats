@@ -31,6 +31,7 @@ public class SeqDivergence {
 
     }
 
+    // Parser from Univocity
     private void initParser() {
         TsvParserSettings parserSettings = new TsvParserSettings();
         parserSettings.setLineSeparatorDetectionEnabled(true);
@@ -41,6 +42,7 @@ public class SeqDivergence {
 
     }
 
+    // Reading a file and returning as a List of String arrays
     private List<String[]> readFile(String filePath) {
         List<String[]> newFile = new ArrayList<String[]>();
 
@@ -56,6 +58,12 @@ public class SeqDivergence {
 
     }
 
+    /*
+        Reading the scaffold sizes file into a HashMap (String to Integer)
+        2 columns in the input file:
+        - Scaffold name (String)
+        - Scaffold size in bp (Integer)
+    */
     private void setScaffSizes(String scaffSizesFilePath) {
         List<String[]> scaffSizes = readFile(scaffSizesFilePath);
 
@@ -66,6 +74,10 @@ public class SeqDivergence {
 
     }
 
+    /*
+        Map scaffold name to alternate allele frequencies (String -> List of String arrays)
+        row[0] contains scaffold and position in this format: scaffoldName_position
+    */
     private void setScaffData(String scaffDataFilePath) {
         List<String[]> scaffData = readFile(scaffDataFilePath);
         String scaffold = "";
@@ -90,43 +102,54 @@ public class SeqDivergence {
 
     }
 
+    /*
+        Maps scaffold name (String) to List of String arrays containing:
+        - Bin (midpoint, e.g. 0-1000 would be labeled as 500)
+        - Pi
+
+        This method processes a single scaffold
+    */
     private void processScaffold(String scaffold, List<String[]> scaffData, int scaffSize) {
         List<String[]> val = new ArrayList<String[]>();
-        int fullBins = scaffSize / 1000;
-        int binMax = 1000;
+        int fullBins = scaffSize / 1000; // Int so no remainders
+        int binMax = 1000; // probably should rename to binUpperBound
 
         /*
-            pi = 2 * (varSites / 1000) * (temp1 + temp2 ... + tempN)
+            pi = 2 * (varSites / 1000) * (temp_1 + temp_2 ... + temp_n)
 
-            tempI = (# alts * # refs) / (24 * 23)
+            temp_i = (# alts * # refs) / (24 * 23)
         */
 
-        int varSites = 0;
+        int varSites = 0; // number of variant sites within bin
         double tempSum = 0;
-
         int binIdx = 0;
 
         while (binIdx < fullBins) {
             for (String[] row : scaffData) {
                 int pos = Integer.parseInt(row[0].split("_")[1]);
 
-                if (pos <= binMax) {
+                if (pos <= binMax) { // within current bin
                     varSites++;
 
-                } else {
-                    binIdx++;
-                    double pi = 2 * (double)varSites / 1000 * tempSum;
-                    String[] newEntry = {Integer.toString(binMax - 500),
-                        Double.toString(pi)};
+                } else { // move to next bin
+                    binIdx++; // update bin index
 
+                     // calculate pi for previous bin
+                    double pi = 2 * (double)varSites / 1000 * tempSum;
+
+                    // MapEntry value update for previous bin
+                    String[] newEntry = {Integer.toString(binMax - 500), Double.toString(pi)};
                     val.add(newEntry);
-                    binMax += 1000;
-                    varSites = 1;
+
+                    binMax += 1000; // update binUpperBound for new bin
+                    varSites = 1; // current variant site is part of new bin
                     tempSum = 0;
 
                 }
 
-                double snps = Double.parseDouble(row[1]) * 24;
+                // update tempSum with current variant site
+                double snps = Double.parseDouble(row[1]) * 24; // allele frequency * 24 = number of
+                                                               // cultivars with this variant
                 double temp = (snps * (24 - snps)) / (24 * 23);
                 tempSum += temp;
 
@@ -134,15 +157,15 @@ public class SeqDivergence {
 
         }
 
+        // For the final bin
         double pi = 2 * (double)varSites / 1000 * tempSum;
-        String[] newEntry = {Integer.toString(binMax - 500),
-            Double.toString(pi)};
-
+        String[] newEntry = {Integer.toString(binMax - 500), Double.toString(pi)};
         val.add(newEntry);
-        this.outputs.put(scaffold, val);
+        this.outputs.put(scaffold, val); // Map
 
     }
 
+    // Calculate bins and pi for every scaffold
     private void processAllScaffs() {
         Iterator<Map.Entry<String, List<String[]>>> iter = this.scaffoldData.entrySet().iterator();
         while (iter.hasNext()) {
@@ -157,6 +180,7 @@ public class SeqDivergence {
 
     }
 
+    // Write a single output
     private void writeOutput(String outputFilePath, String scaffold) {
         TsvWriter writer = null;
 
@@ -214,6 +238,7 @@ public class SeqDivergence {
 
         }
 
+        // Write all outputs
         Iterator<Map.Entry<String, List<String[]>>> iter = this.outputs.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry<String, List<String[]>> entry = iter.next();
