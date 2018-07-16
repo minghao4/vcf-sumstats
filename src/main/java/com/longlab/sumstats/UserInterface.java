@@ -1,7 +1,5 @@
 package com.longlab.sumstats;
 
-import java.util.Scanner;
-
 public class UserInterface {
     private int cultivars;
     private String command;
@@ -97,7 +95,7 @@ public class UserInterface {
                 System.out.println();
                 System.out.println("Please check if you have the correct inputs/order of inputs:");
                 System.out.println(
-                    "vcf-sumstats.jar <number of cultivars> Histograms <folder containing variant TSVs> <annotatedRegions.tsv>");
+                    "vcf-sumstats.jar <number of cultivars> Histograms <folder containing *SORTED* variant TSVs> <annotatedRegions.tsv>");
                 System.exit(1);
 
             }
@@ -115,7 +113,7 @@ public class UserInterface {
                 System.out.println();
                 System.out.println("Please check if you have the correct inputs/order of inputs:");
                 System.out.println(
-                    "vcf-sumstats.jar <number of cultivars> Linkage <folder containing variant TSVs>");
+                    "vcf-sumstats.jar <number of cultivars> Linkage <folder containing *SORTED* SNP TSV>");
                 System.exit(1);
 
             }
