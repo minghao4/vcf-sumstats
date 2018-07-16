@@ -14,12 +14,8 @@ Formats for each:
 
 ``` java
 java -jar vcf-sumstats.jar <number of cultivars> VcfParser <folder containing VCFs> <output.tsv>
-```
 
-``` java
 java -jar vcf-sumstats.jar <number of cultivars> Histograms <folder containing variant TSVs> <annotatedRegions.tsv>
-```
 
-``` java
 java -jar vcf-sumstats.jar <number of cultivars> Linkage <folder containing variant TSVs>
 ```
