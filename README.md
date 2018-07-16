@@ -21,3 +21,12 @@ java -jar vcf-sumstats.jar <number of cultivars> Linkage <folder containing sort
 ```
 
 ## Please use TSV files sorted alphabetically by scaffold and ascending by position!! This is very important!!!
+
+A sample one liner would be:
+`(head -n 2 <file> && tail -n +3 <file> | sort -k1,1 -k2,2n) > <sorted_file>`
+
+In this example, column 1 contains scaffold names (sorted alphabetically) and column 2. The header is
+excluded from sorting. If it's a variant file where the scaffold name and position are in one column,
+one could do this:
+
+`(head -n 2 <file> && tail -n +3 <file> | sort -k1,1 -k1,1n) > <sorted_file>`

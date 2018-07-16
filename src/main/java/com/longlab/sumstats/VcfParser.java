@@ -228,7 +228,7 @@ public class VcfParser {
             IMPORTANT!!
             The headers need to be changed for the new cultivars!!
         */
-        writer.writeHeaders("Scaffold_Position",
+        writer.writeHeaders("#Scaffold_Position",
             "Canda_A1",   "Canda_A2",
             "CFX1_A1",    "CFX1_A2",
             "CFX2_A1",    "CFX2_A2",

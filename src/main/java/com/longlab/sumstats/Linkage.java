@@ -18,14 +18,14 @@ import java.util.HashMap;
 public class Linkage {
     private Map<String, List<String[]>> scaffolds;
     private List<String[]> input;
-    private List<double[]> outputHom;
+    private List<double[]> output;
     private TsvParser parser;
     private int cultivars;
 
     public Linkage(int cultivars) {
         this.scaffolds = new HashMap<String,List<String[]>>();
         this.input = new ArrayList<String[]>();
-        this.outputHom = new ArrayList<double[]>();
+        this.output = new ArrayList<double[]>();
         this.cultivars = cultivars;
 
         initParser();
@@ -173,7 +173,7 @@ public class Linkage {
 
                     newOutputEntry[0] = (double)distance;
                     newOutputEntry[1] = rSquared(varA, varB);
-                    this.outputHom.add(newOutputEntry);
+                    this.output.add(newOutputEntry);
 
                 }
 
@@ -195,7 +195,7 @@ public class Linkage {
         }
 
         writer.writeHeaders("#Distance", "rSquared");
-        for (double[] row : this.outputHom) {
+        for (double[] row : this.output) {
             if (row[0] == 0 && row[1] == 0) {
                 break;
 
