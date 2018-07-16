@@ -1,7 +1,5 @@
-com/longlab/sumstats/SeqDivergence.class
 com/longlab/sumstats/Main.class
+com/longlab/sumstats/VcfParser.class
 com/longlab/sumstats/Histograms.class
 com/longlab/sumstats/RegionAnnotater.class
 com/longlab/sumstats/Linkage.class
-com/longlab/sumstats/PhaseInputFormatter.class
-com/longlab/sumstats/VcfParser.class

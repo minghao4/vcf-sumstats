@@ -31,33 +31,28 @@ public class VcfParser {
     11. silesia
     12. x59
 
-    Key:
-    0 - Variant not detected
-    1 - Variant is to A
-    2 - Variant is to C
-    3 - Variant is to G
-    4 - Variant is to T
-    Larger positive number - Insertion
-    Larger negative number - Deletion
+
 
     */
 
-    private Map<String, int[][]> variants; // variant hashmap
-    private List<String[]> currFile; // current vcf file read
-    private TsvParser parser; // parser tool from univocity
+    private Map<String, int[][]> variants; // Variant hashmap.
+    private List<String[]> currFile; // Current VCF file read.
+    private TsvParser parser; // Parser tool from uniVocity.
+    private int cultivars; // Number of cultivars
 
-    public VcfParser() {
+    public VcfParser(int cultivars) {
         this.variants = new HashMap<String, int[][]>();
         this.currFile = new ArrayList<String[]>();
+        this.cultivars = cultivars;
 
         initParser();
 
     }
 
-    // 1. initiate parser settings:
-    //     - automatic line separator detection
-    //     - process file row by row
-    // 2. initiate parser
+    // 1. Initiate parser settings:
+    //     - Automatic line separator detection
+    //     - Process file row by row
+    // 2. Initiate parser
     private void initParser() {
         TsvParserSettings parserSettings = new TsvParserSettings();
         parserSettings.setLineSeparatorDetectionEnabled(true);
@@ -68,7 +63,7 @@ public class VcfParser {
 
     }
 
-    // read current file using parser's parseAll method
+    // Read current file using parser's parseAll method.
     private void readCurrFile(String filePath) {
         try {
             this.currFile = this.parser.parseAll(new FileReader(filePath));
@@ -80,11 +75,10 @@ public class VcfParser {
 
     }
 
-    // return genotype status
+    // Return genotype status.
     private int gtStatus(String gt) {
-        // 0 = homozygous alt
-        // 1 = heterozygous
-        // 2 = heterozygous with 2 alts
+        // 0 = Homozygous
+        // 1 = Heterozygous
 
         int status = 0;
 
@@ -93,23 +87,27 @@ public class VcfParser {
 
         }
 
-        // NOT NEEDED
-        // } else if (gt.equals("1/2")) {
-        //     status = 2;
-
-        // }
-
         return status;
 
     }
 
-    // given an allele (point mutation or indel), return value as per key above
+    // Given an allele (SNP or indel), return value as per key below:
+    /*
+        Key:
+        0 - Variant not detected
+        1 - Variant is to A
+        2 - Variant is to C
+        3 - Variant is to G
+        4 - Variant is to T
+        Larger positive number - Insertion
+        Larger negative number - Deletion
+    */
     private int alleleToVal(String allele) {
         int value = 0;
 
         for (int i = 0; i < allele.length(); i++) {
             char base = allele.charAt(i);
-            int mod = i + 1;
+            int mod = i + 1; // Modifier based on position of nucleotide.
 
             if (base == 'A') {
                 value += 1 * mod;
@@ -131,7 +129,7 @@ public class VcfParser {
 
     }
 
-    // set single allele entry given reference allele and the variant allele
+    // Set single allele hashmap entry given reference allele and the variant allele.
     private int setVarEntry(String refAllele, String varAllele) {
         int varEntry = alleleToVal(varAllele);
 
@@ -144,32 +142,16 @@ public class VcfParser {
 
     }
 
-    // set entry for both alleles given variant entr
+    // Set entry array for both alleles for a given variant.
     private int[] setEntry(int varEntryA1, int varEntryA2) {
         int[] entry = {varEntryA1, varEntryA2};
         return entry;
 
     }
 
-    // NOT NEEDED
-    // private int[] multiAlleles(String refAllele, String varAllele) {
-    //     String[] varAlleles = varAllele.split(",");
-    //     int varEntryA1 = setVarEntry(refAllele, varAlleles[0]);
-    //     int varEntryA2 = setVarEntry(refAllele, varAlleles[1]);
-
-    //     return setEntry(varEntryA1, varEntryA2);
-
-    // }
-
     private int[] entry(int gtStatus, String refAllele, String varAllele) {
         int varEntryA1 = 0;
         int varEntryA2 = 0;
-
-        // NOT NEEDED
-        // if (gtStatus == 2) {
-        //     return multiAlleles(refAllele, varAllele);
-
-        // }
 
         if (gtStatus == 0) {
             varEntryA1 = setVarEntry(refAllele, varAllele);
@@ -182,10 +164,9 @@ public class VcfParser {
 
     }
 
-
     private void processCurrFile(int currFileIdx) {
         for (String[] line : this.currFile) {
-            String idPos = line[0] + "_" + line[1];
+            String scaffPos = line[0] + "_" + line[1];
             String gt = line[9].split(":")[0];
             int gtStatus = gtStatus(gt);
 
@@ -193,14 +174,14 @@ public class VcfParser {
             String varAllele = line[4];
             int[] entry = entry(gtStatus, refAllele, varAllele);
 
-            if (this.variants.containsKey(idPos)) {
-                this.variants.get(idPos)[currFileIdx] = entry;
+            if (this.variants.containsKey(scaffPos)) {
+                this.variants.get(scaffPos)[currFileIdx] = entry;
 
             } else {
-                int[][] newEntry = new int[12][2];
+                int[][] newEntry = new int[this.cultivars][2];
                 newEntry[currFileIdx] = entry;
 
-                this.variants.put(idPos, newEntry);
+                this.variants.put(scaffPos, newEntry);
 
             }
 
@@ -243,6 +224,10 @@ public class VcfParser {
 
         }
 
+        /*
+            IMPORTANT!!
+            The headers need to be changed for the new cultivars!!
+        */
         writer.writeHeaders("Scaffold_Position",
             "Canda_A1",   "Canda_A2",
             "CFX1_A1",    "CFX1_A2",
@@ -259,7 +244,7 @@ public class VcfParser {
             "Allele_Frequency");
 
         for (Map.Entry<String, int[][]> entry : this.variants.entrySet()) {
-            String[] row = new String[26];
+            String[] row = new String[this.cultivars * 2 + 2];
             int varCount = 0;
             row[0] = entry.getKey();
 
@@ -283,7 +268,7 @@ public class VcfParser {
 
             }
 
-            row[25] = Double.toString((double)varCount / 24);
+            row[this.cultivars * 2 + 1] = Double.toString((double)varCount / (this.cultivars * 2));
             writer.writeRow(row);
 
         }

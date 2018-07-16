@@ -1,6 +1,11 @@
 package com.longlab.sumstats;
 
 public class Main {
+    public static void main(String[] args) {
+        new UserInterface(args);
+
+    }
+
     // public static void main(String[] args) {
     //     String inputFiles = args[0];
     //     String outputFile = args[1];
@@ -33,17 +38,11 @@ public class Main {
 
     // }
 
-    public static void main(String[] args) {
-        String folderPath = args[0];
-        Linkage link = new Linkage();
-
-        link.calcLinkage(folderPath);
-
-    }
-
     // public static void main(String[] args) {
     //     String folderPath = args[0];
-    //     SeqDivergence div = new SeqDivergence();
+    //     Linkage link = new Linkage();
+
+    //     link.calcLinkage(folderPath);
 
     // }
 

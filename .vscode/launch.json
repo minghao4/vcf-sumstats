@@ -10,11 +10,12 @@
             "name": "Debug (Launch)-Main<vcf-sumstats>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "console": "internalConsole",
+            "console": "integratedTerminal",
             "stopOnEntry": false,
             "mainClass": "com.longlab.sumstats.Main",
             "projectName": "vcf-sumstats",
-            "args": "${workspaceFolder}/testing/ld_test"
+            "args" : "asdf VcfParser"
+            // "args": "${workspaceFolder}/testing/ld_test"
         },
         {
             "type": "java",

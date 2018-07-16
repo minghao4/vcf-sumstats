@@ -21,24 +21,25 @@ public class Histograms {
     private String[][] cleanOutput;
     private String[][] currOutput;
     private TsvParser parser;
+    private int cultivars; // Number of cultivars
 
-
-    // Input Format(TSV): Scaffold, Position,
-
-    public Histograms() {
+    public Histograms(int cultivars) {
         this.regions = new HashMap<String, List<String[]>>();
         this.currFile = new ArrayList<String[]>();
+        this.cultivars = cultivars;
+
         initOutput();
         initParser();
 
     }
 
     private void initOutput() {
-        this.currOutput = new String[4][25];
+        int cols = this.cultivars * 2 + 1;
+        this.currOutput = new String[4][cols];
         this.currOutput[0][0] = "#Region";
 
-        for (int i = 1; i < 25; i++) {
-            this.currOutput[0][i] = i + "/24";
+        for (int i = 1; i < cols; i++) {
+            this.currOutput[0][i] = i + "/" + Integer.toString(cols - 1);
 
         }
 
@@ -47,7 +48,7 @@ public class Histograms {
         this.currOutput[3][0] = "intergenic";
 
         for (int i = 1; i < 4; i++) {
-            for (int j = 1; j < 25; j++) {
+            for (int j = 1; j < cols; j++) {
                 this.currOutput[i][j] = "0";
 
             }
@@ -116,8 +117,9 @@ public class Histograms {
     private void addOutputEntry(String annotation, String varFreq) {
         int entryIdx = 0;
         int rgnIdx = 0;
+        int ub = this.cultivars * 2 + 1;
 
-        for (int i = 1; i < 25; i++) {
+        for (int i = 1; i < ub; i++) {
             if (this.currOutput[0][i].equals(varFreq)) {
                 entryIdx = i;
                 break;
@@ -167,12 +169,14 @@ public class Histograms {
 
     private void processVariants() {
         // Assumes current file is a variant file
+        int totalAlleles = this.cultivars * 2;
+
         for (String[] row : this.currFile) {
             String[] scaffold_pos = row[0].split("_");
             String scaffold = scaffold_pos[0];
             int varPos = Integer.parseInt(scaffold_pos[1]);
-            Double varFreqCount = Double.parseDouble(row[row.length - 1]) * 24;
-            String varFreq = varFreqCount.intValue() + "/24";
+            Double varFreqCount = Double.parseDouble(row[row.length - 1]) * totalAlleles;
+            String varFreq = varFreqCount.intValue() + "/" + Integer.toString(totalAlleles);
 
             locateVariant(scaffold, varPos, varFreq);
 
@@ -219,7 +223,7 @@ public class Histograms {
             processVariants();
 
             String fileName = file.getName().substring(0, file.getName().length() - 4);
-            String outputFileName = fileName + "_output.tsv";
+            String outputFileName = fileName + "_histogram_output.tsv";
             String outputFilePath = folderPath + "/" + outputFileName;
             writeVariantOutput(outputFilePath);
 

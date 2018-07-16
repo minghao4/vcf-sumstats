@@ -14,21 +14,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
-// import java.util.Set;
-// import java.util.HashSet;
 
 public class Linkage {
     private Map<String, List<String[]>> scaffolds;
     private List<String[]> input;
     private List<double[]> outputHom;
-    // private Set<String[]> outputHet;
     private TsvParser parser;
+    private int cultivars;
 
-    public Linkage() {
+    public Linkage(int cultivars) {
         this.scaffolds = new HashMap<String,List<String[]>>();
         this.input = new ArrayList<String[]>();
         this.outputHom = new ArrayList<double[]>();
-        // this.outputHet = new HashSet<String[]>();
+        this.cultivars = cultivars;
+
         initParser();
 
     }
@@ -93,41 +92,26 @@ public class Linkage {
 
     }
 
-    // private void getOutputDim() {
-    //     int dimCol = 2;
-    //     int dimRow = 0;
-
-    //     for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
-    //         dimRow += CombinatoricsUtils.binomialCoefficient(entry.getValue().size(), 2);
-
-    //     }
-
-    //     System.out.println("Max rows: " + dimRow);
-    //     this.outputHom = new double[dimRow][dimCol];
-
-    // }
-
     private int status(String[] varA, String[] varB) {
         // 0 = hom
-        // 1 = varA anom
+        // 1 = varA anomaly
         // 2 = varB anom
 
         int status = 0;
+        int totalAlleles = this.cultivars * 2;
 
-        if (Double.parseDouble(varA[25]) == 1) {
+        if (Double.parseDouble(varA[totalAlleles + 1]) == 1) {
             status = 1;
 
-        } else if (Double.parseDouble(varB[25]) == 1) {
+        } else if (Double.parseDouble(varB[totalAlleles + 1]) == 1) {
             status = 2;
 
         } else {
-            for (int i = 1; i <= 23; i += 2) {
+            for (int i = 1; i <= (totalAlleles - 1); i += 2) {
                 if (!varA[i].equals(varA[i + 1])) {
-                    // this.outputHet.add(varA);
                     status = 1;
 
                 } else if (!varB[i].equals(varB[i + 1])) {
-                    // this.outputHet.add(varB);
                     status = 2;
 
                 }
@@ -141,11 +125,13 @@ public class Linkage {
     }
 
     private double rSquared(String[] varA, String[] varB) {
-        double pA = Double.parseDouble(varA[25]);
-        double pB = Double.parseDouble(varB[25]);
+        int totalAlleles = this.cultivars * 2;
+
+        double pA = Double.parseDouble(varA[totalAlleles + 1]);
+        double pB = Double.parseDouble(varB[totalAlleles + 1]);
         double countAB = 0;
 
-        for (int i = 1; i <= 23; i += 2) {
+        for (int i = 1; i <= (totalAlleles - 1); i += 2) {
             if (!varA[i].equals("0") && !varB[i].equals("0")) {
                 countAB += 2;
 
@@ -153,33 +139,14 @@ public class Linkage {
 
         }
 
-        double d = (countAB / 24) - (pA * pB);
+        double d = (countAB / totalAlleles) - (pA * pB);
         double r = d / Math.sqrt(pA * pB * (1 - pA) * (1 - pB));
-
-        // debugging
-        if (Double.isNaN(Math.pow(r, 2))) {
-            System.out.println("Anomaly");
-            System.out.println(varA[0]);
-            System.out.println(pA);
-            System.out.println(varB[0]);
-            System.out.println(pB);
-            System.out.println(countAB);
-            System.out.println(d);
-            System.out.println(r);
-            System.out.println(Math.pow(r, 2));
-            System.out.println();
-            System.exit(0);
-
-        }
 
         return Math.pow(r, 2);
 
     }
 
     private void setOutput() {
-        // getOutputDim();
-        // int row = 0;
-
         for (Map.Entry<String, List<String[]>> entry : this.scaffolds.entrySet()) {
             List<String[]> vars = entry.getValue();
             int varsLen = vars.size();
@@ -207,7 +174,6 @@ public class Linkage {
                     newOutputEntry[0] = (double)distance;
                     newOutputEntry[1] = rSquared(varA, varB);
                     this.outputHom.add(newOutputEntry);
-                    // row++;
 
                 }
 
@@ -217,20 +183,18 @@ public class Linkage {
 
     }
 
-    private void writeOutput(String outputHomFilePath) {
-        TsvWriter writerHom = null;
-        // TsvWriter writerHet = null;
+    private void writeOutput(String outputFilePath) {
+        TsvWriter writer = null;
 
         try {
-            writerHom = new TsvWriter(new FileWriter(outputHomFilePath), new TsvWriterSettings());
-            // writerHet = new TsvWriter(new FileWriter(outputHetFilePath), new TsvWriterSettings());
+            writer = new TsvWriter(new FileWriter(outputFilePath), new TsvWriterSettings());
 
         } catch (IOException e) {
             e.printStackTrace();
 
         }
 
-        writerHom.writeHeaders("#Distance", "rSquared");
+        writer.writeHeaders("#Distance", "rSquared");
         for (double[] row : this.outputHom) {
             if (row[0] == 0 && row[1] == 0) {
                 break;
@@ -241,34 +205,12 @@ public class Linkage {
             writeable[0] = Double.toString(row[0]);
             writeable[1] = Double.toString(row[1]);
 
-            writerHom.writeRow(writeable);
+            writer.writeRow(writeable);
 
         }
 
-        // writerHet.writeHeaders("Scaffold_Position",
-        // "Canda_A1",   "Canda_A2",
-        // "CFX1_A1",    "CFX1_A2",
-        // "CFX2_A1",    "CFX2_A2",
-        // "CRS1_A1",    "CRS1_A2",
-        // "Delores_A1", "Delores_A2",
-        // "Finola_A1",  "Finola_A2",
-        // "Grandi_A1",  "Grandi_A2",
-        // "Joey_A1",    "Joey_A2",
-        // "Katani_A1",  "Katani_A2",
-        // "Picolo_A1",  "Picolo_A2",
-        // "Silesia_A1", "Silesia_A2",
-        // "X59_A1",     "X59_A2",
-        // "Allele_Frequency");
-
-        // for (String[] row : this.outputHet) {
-        //     writerHet.writeRow(row);
-
-        // }
-
-        writerHom.flush();
-        // writerHet.flush();
-        writerHom.close();
-        // writerHet.close();
+        writer.flush();
+        writer.close();
 
     }
 
@@ -300,11 +242,9 @@ public class Linkage {
             }
 
             String fileName = file.getName().substring(0, file.getName().length() - 4);
-            String outputHomFileName = fileName + "_outputHom.tsv";
-            // String outputHetFileName = fileName + "_outputHet.tsv";
-            String outputHomFilePath = folderPath + "/output/" + outputHomFileName;
-            // String outputHetFilePath = folderPath + "/output/" + outputHetFileName;
-            writeOutput(outputHomFilePath);
+            String outputFileName = fileName + "_linkage_output.tsv";
+            String outputFilePath = folderPath + "/output/" + outputFileName;
+            writeOutput(outputFilePath);
 
         }
 
